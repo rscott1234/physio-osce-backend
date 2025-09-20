@@ -16,16 +16,164 @@ def generate_case():
         topic = request.args.get("topic", "musculoskeletal")
         print(f"⚡ Generating case for topic: {topic}")
 
-        # your OpenAI call and generation logic goes here
-        # case_data = ...
+        # Create the prompt for OpenAI
+        prompt = f"""
+        Generate a comprehensive OSCE-ready physiotherapy case study for {topic} rehabilitation.
 
+        Create a realistic patient scenario with the following structure:
+
+        PATIENT INFORMATION:
+        - Name (realistic first and last name)
+        - Age (appropriate for condition)
+        - Occupation (relevant to case)
+        - Chief complaint (primary reason for seeking treatment)
+        - Social history (lifestyle factors, activity level, relevant social context)
+        - Patient goals (specific, measurable rehabilitation goals)
+
+        CLINICAL PRESENTATION:
+        - History: Detailed onset, mechanism of injury, progression, previous treatments
+        - Symptoms: Current symptoms with specific descriptions, pain scales, functional limitations
+        - Examination: Specific physical examination findings including ROM measurements, strength testing, special tests
+        - Diagnostics: Relevant imaging, lab results, or other diagnostic findings
+        - Outcome measures: Specific validated assessment tools appropriate for this condition
+
+        OSCE QUESTIONS (create exactly 3 questions):
+        1. Red/Orange Flags: "What are the potential red or orange flags in this presentation?" (Answer should include specific warning signs that would require immediate medical attention or referral)
+        2. Problem List: "What would be your problem list for this patient?" (Answer should include primary and secondary problems in order of priority)
+        3. Treatment Approach: "What treatment approach would you recommend and why?" (Answer should include specific interventions, rationale, and expected outcomes)
+
+        Make this case realistic, clinically accurate, and appropriate for final-year physiotherapy students. Include specific measurements, timeframes, and evidence-based reasoning.
+
+        Format the response as a structured case study with clear sections.
+        """
+
+        # Call OpenAI API
+        print("🤖 Calling OpenAI API...")
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert physiotherapy educator creating OSCE examination cases. Provide detailed, clinically accurate scenarios with specific measurements and evidence-based content."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=2000,
+            temperature=0.8
+        )
+
+        ai_response = response.choices[0].message.content
+        print("✅ OpenAI response received")
+
+        # Parse the AI response into structured data
+        # This is a simplified parser - you might want to make this more robust
+        case_data = parse_ai_response(ai_response, topic)
+
+        print(f"📋 Case generated successfully for {topic}")
         return jsonify(case_data)
 
     except Exception as e:
-        print(f"❌ Error generating case: {e}")   # <--- log visible in Render
+        print(f"❌ Error generating case: {e}")
         return jsonify({"error": str(e)})
 
 
+def parse_ai_response(ai_text, topic):
+    """
+    Parse the AI response into the structured format expected by the frontend
+    """
+    try:
+        # This is a basic parser - in production you might want more sophisticated parsing
+        # For now, we'll create a structured response with some AI content
+        
+        # Extract key information (simplified approach)
+        lines = ai_text.split('\n')
+        
+        # Create structured case data
+        case_data = {
+            "patient": {
+                "name": extract_field(ai_text, "Name") or f"Patient {topic.title()}",
+                "age": extract_field(ai_text, "Age") or "45",
+                "occupation": extract_field(ai_text, "Occupation") or "Office Worker",
+                "chief_complaint": extract_field(ai_text, "Chief complaint") or f"{topic.title()} condition requiring assessment",
+                "social_history": extract_field(ai_text, "Social history") or "Active lifestyle, no significant medical history",
+                "goals": extract_field(ai_text, "goals") or "Return to full function and activities"
+            },
+            "medical": {
+                "history": extract_section(ai_text, "History") or f"Detailed {topic} presentation with progressive symptoms",
+                "symptoms": extract_section(ai_text, "Symptoms") or "Pain, stiffness, and functional limitations",
+                "examination": extract_section(ai_text, "Examination") or "Comprehensive physical examination findings",
+                "diagnostics": extract_section(ai_text, "Diagnostics") or "Relevant imaging and assessment results",
+                "outcome_measures": extract_section(ai_text, "Outcome measures") or "Standardized assessment tools"
+            },
+            "questions": [
+                {
+                    "question": "What are the potential red or orange flags in this presentation?",
+                    "answer": extract_answer(ai_text, "red", "flags") or "Assess for serious pathology, fractures, neurological involvement, and systemic conditions requiring immediate medical attention."
+                },
+                {
+                    "question": "What would be your problem list for this patient?",
+                    "answer": extract_answer(ai_text, "problem", "list") or "1. Primary condition affecting function 2. Secondary impairments 3. Activity limitations 4. Participation restrictions"
+                },
+                {
+                    "question": "What treatment approach would you recommend and why?",
+                    "answer": extract_answer(ai_text, "treatment", "approach") or "Evidence-based multimodal approach including manual therapy, exercise prescription, patient education, and functional training with clear rationale and expected outcomes."
+                }
+            ]
+        }
+        
+        return case_data
+        
+    except Exception as e:
+        print(f"⚠️ Parsing error, using fallback structure: {e}")
+        # Fallback with AI content if parsing fails
+        return {
+            "patient": {
+                "name": f"AI Generated Patient",
+                "age": "45",
+                "occupation": "Various",
+                "chief_complaint": f"{topic.title()} condition",
+                "social_history": "Generated by AI",
+                "goals": "Functional improvement"
+            },
+            "medical": {
+                "history": ai_text[:200] + "..." if len(ai_text) > 200 else ai_text,
+                "symptoms": "AI generated symptoms",
+                "examination": "AI generated examination findings",
+                "diagnostics": "AI generated diagnostic information",
+                "outcome_measures": "AI generated outcome measures"
+            },
+            "questions": [
+                {"question": "What are the red flags?", "answer": "AI generated red flag assessment"},
+                {"question": "What is your problem list?", "answer": "AI generated problem list"},
+                {"question": "What treatment do you recommend?", "answer": "AI generated treatment recommendations"}
+            ]
+        }
+
+
+def extract_field(text, field_name):
+    """Extract a specific field from the AI response"""
+    import re
+    pattern = rf"{field_name}[:\-\s]*([^\n]+)"
+    match = re.search(pattern, text, re.IGNORECASE)
+    return match.group(1).strip() if match else None
+
+
+def extract_section(text, section_name):
+    """Extract a larger section from the AI response"""
+    import re
+    pattern = rf"{section_name}[:\-\s]*([^\n]+(?:\n(?![\w\s]*:)[^\n]*)*)"
+    match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE)
+    return match.group(1).strip() if match else None
+
+
+def extract_answer(text, keyword1, keyword2):
+    """Extract answers to specific questions"""
+    import re
+    pattern = rf".*{keyword1}.*{keyword2}.*?[:\-\s]*([^\n]+(?:\n(?![\w\s]*:)[^\n]*)*)"
+    match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE | re.DOTALL)
+    if match:
+        answer = match.group(1).strip()
+        # Clean up the answer
+        answer = re.sub(r'^[\d\.\-\*\s]+', '', answer)  # Remove leading numbers/bullets
+        return answer
+    return None
     # Enhanced prompts for each specialty
     topic_specific_prompts = {
         "musculoskeletal": """
