@@ -12,7 +12,16 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/generate-case", methods=["GET"])
 def generate_case():
-    topic = request.args.get("topic", "musculoskeletal")
+        topic = request.args.get("topic", "musculoskeletal")
+        print(f"⚡ Generating case for topic: {topic}")
+        
+        # ... call OpenAI ...
+        
+        return jsonify(case_data)
+    except Exception as e:
+        print(f"❌ Error generating case: {e}")   # Shows in Render logs
+        return jsonify({"error": str(e)})
+
 
     # Enhanced prompts for each specialty
     topic_specific_prompts = {
