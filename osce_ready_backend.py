@@ -139,10 +139,36 @@ def generate_case():
         print(f"🎯 Enhanced OSCE case generated successfully for {topic}")
         return jsonify(case_data)
 
-    except json.JSONDecodeError as e:
+   except json.JSONDecodeError as e:
         print(f"❌ JSON parsing error: {e}")
-        print(f"Raw AI response: {ai_content[:200]}...")
-        return jsonify({"error": f"Failed to parse AI response as JSON: {str(e)}"})
+        print(f"Raw AI response (first 500 chars): {ai_content[:500]}...") # Log more of the raw response
+        
+        # Fallback to a structured JSON with the raw AI content in the history field
+        # This ensures the frontend always gets a valid JSON structure,
+        # even if the AI's output was not perfectly formatted JSON.
+        fallback_case_data = {
+            "patient": {
+                "name": "AI Parsing Error",
+                "age": "N/A",
+                "occupation": "N/A",
+                "chief_complaint": "AI response could not be fully structured.",
+                "social_history": "Please check backend logs for raw AI output.",
+                "goals": "N/A"
+            },
+            "medical": {
+                "history": f"Original AI response (parsing failed):\\n\\n{ai_content}",
+                "symptoms": "N/A",
+                "examination": "N/A",
+                "diagnostics": "N/A",
+                "outcome_measures": "N/A"
+            },
+            "questions": [
+                {"question": "AI Parsing Error", "answer": f"Failed to parse AI response as JSON: {str(e)}"},
+                {"question": "Raw AI Content", "answer": ai_content},
+                {"question": "Please check backend logs for details.", "answer": "This indicates an issue with OpenAI's output not strictly adhering to the requested JSON format. The full raw AI response is included above for debugging."}
+            ]
+        }
+        return jsonify(fallback_case_data)
     
     except Exception as e:
         print(f"❌ Error generating enhanced case: {e}")
