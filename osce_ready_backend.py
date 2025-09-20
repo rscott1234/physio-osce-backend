@@ -98,7 +98,7 @@ def generate_case():
         - Ensure the case tests both practical skills and theoretical knowledge
         """
 
-        print("🤖 Calling enhanced case generation...")
+        print("🤖 Calling OpenAI API for enhanced case generation...")
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -111,12 +111,12 @@ def generate_case():
                     "content": prompt
                 }
             ],
-            max_tokens=2500,  # Increased for longer, detailed answers
+            max_tokens=2500,
             temperature=0.7
         )
 
         ai_content = response.choices[0].message.content.strip()
-        print("✅ Enhanced response received")
+        print("✅ Enhanced AI response received")
 
         # Clean up any potential markdown formatting
         if ai_content.startswith("```json"):
@@ -127,52 +127,7 @@ def generate_case():
 
         # Parse JSON safely
         case_data = json.loads(ai_content)
-        print("📋 Enhanced case parsed successfully - 6 questions generated")
-
-        # Validate that we have the expected structure
-        if not all(key in case_data for key in ["patient", "medical", "questions"]):
-            raise ValueError("Invalid case structure returned from AI")
-        
-        if len(case_data["questions"]) < 6:
-            print(f"⚠️ Warning: Only {len(case_data['questions'])} questions generated, expected 6")
-
-        print(f"🎯 Enhanced OSCE case generated successfully for {topic}")
-        return jsonify(case_data)
-
-   except json.JSONDecodeError as e:
-        print(f"❌ JSON parsing error: {e}")
-        print(f"Raw AI response (first 500 chars): {ai_content[:500]}...") # Log more of the raw response
-        
-        # Fallback to a structured JSON with the raw AI content in the history field
-        # This ensures the frontend always gets a valid JSON structure,
-        # even if the AI's output was not perfectly formatted JSON.
-        fallback_case_data = {
-            "patient": {
-                "name": "AI Parsing Error",
-                "age": "N/A",
-                "occupation": "N/A",
-                "chief_complaint": "AI response could not be fully structured.",
-                "social_history": "Please check backend logs for raw AI output.",
-                "goals": "N/A"
-            },
-            "medical": {
-                "history": f"Original AI response (parsing failed):\\n\\n{ai_content}",
-                "symptoms": "N/A",
-                "examination": "N/A",
-                "diagnostics": "N/A",
-                "outcome_measures": "N/A"
-            },
-            "questions": [
-                {"question": "AI Parsing Error", "answer": f"Failed to parse AI response as JSON: {str(e)}"},
-                {"question": "Raw AI Content", "answer": ai_content},
-                {"question": "Please check backend logs for details.", "answer": "This indicates an issue with OpenAI's output not strictly adhering to the requested JSON format. The full raw AI response is included above for debugging."}
-            ]
-        }
-        return jsonify(fallback_case_data)
-    
-    except Exception as e:
-        print(f"❌ Error generating enhanced case: {e}")
-        return jsonify({"error": str(e)})
+        print("📋 Enhanced case parsed successfully - 6 questions
 
 if __name__ == "__main__":
     print("🏥 OSCE-Ready Enhanced Physiotherapy App Starting...")
