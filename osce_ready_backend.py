@@ -214,12 +214,15 @@ def health_check():
         "features": ["Detailed ROM measurements", "Pathophysiological reasoning", "Outcome measures", "Enhanced clinical scenarios", "Mandatory Red/Orange Flags", "Problem List", "Treatment Indication"]
     })
 
+import os
+
 if __name__ == "__main__":
     print("🏥 OSCE-Ready Physiotherapy AI Backend Starting...")
-    print("📡 Server will run on: http://127.0.0.1:5000")
+    print("📡 Server will run on: 0.0.0.0:$PORT (Render) or 127.0.0.1:5000 (local)")
     print("🔑 Make sure OPENAI_API_KEY environment variable is set!")
-    print("💡 Test endpoint: http://127.0.0.1:5000/health")
+    print("💡 Test endpoint: /health")
     print("🎯 New Features: Mandatory Red/Orange Flags, Problem List, Treatment Indication")
+
     # Render assigns us a port via the $PORT environment variable
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port) 
