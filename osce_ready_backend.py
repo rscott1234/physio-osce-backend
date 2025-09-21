@@ -31,80 +31,93 @@ def generate_case():
     topic = request.args.get('topic', 'general')
     
     try:
+        # Enhanced prompt with 3 core + 3 random questions
         prompt = f"""Generate a completely unique and realistic physiotherapy case study for {topic}. 
 
 --- FORMAT ---
 Return ONLY valid JSON in this exact format:
 
 {{
-  "patient": {{ 
-    "name": "Unique patient name",
-    "age": "Age in years and gender",
-    "occupation": "Job or lifestyle",
-    "chief_complaint": "Main presenting problem",
-    "social_history": "Social details",
-    "goals": "Functional goals"
+  "patient": {{
+    "name": "Unique patient name (first and last)",
+    "age": "Age in years and gender (e.g., 34-year-old male)",
+    "occupation": "Specific job or lifestyle description",
+    "chief_complaint": "Primary presenting problem in patient's words",
+    "social_history": "Living situation, family support, activity level, hobbies",
+    "goals": "Specific functional goals the patient wants to achieve"
   }},
   "medical": {{
-    "history": "Medical history details",
-    "symptoms": "Current symptoms",
-    "examination": "Findings",
-    "diagnostics": "Investigations",
-    "outcome_measures": "Scores used"
+    "history": "Detailed onset, mechanism of injury, progression, previous treatments",
+    "symptoms": "Current pain patterns, functional limitations, aggravating/easing factors",
+    "examination": "Objective findings, range of motion, strength, special tests, posture",
+    "diagnostics": "Imaging results, blood work, other diagnostic tests with specific findings",
+    "outcome_measures": "Specific validated assessment tools with baseline scores"
   }},
   "questions": [
     {{
-      "question": "Detailed clinical reasoning question",
-      "answer": "Comprehensive multi-sentence answer with pathophysiology detail, red flags, and definitions of key terms"
+      "question": "What are the key pathophysiological mechanisms underlying this patient's presentation? Explain all medical terms clearly.",
+      "answer": "Detailed explanation of tissue pathology, pain mechanisms, and physiological processes with definitions"
     }},
     {{
-      "question": "Evidence-based treatment plan",
-      "answer": "Detailed description with rationales and progression"
+      "question": "What red flags or concerning symptoms would prompt urgent referral in this case, and why?",
+      "answer": "Specific warning signs, what each indicates, and appropriate referral pathways with reasoning"
     }},
     {{
-      "question": "Biopsychosocial considerations",
-      "answer": "Holistic explanation linking psychosocial barriers to recovery"
+      "question": "What is this patient's problem list, and how would you structure a comprehensive management plan?",
+      "answer": "Prioritized problem list with detailed, evidence-based treatment approach and rationale"
     }},
     {{
-      "question": "Red flags and referral criteria",
-      "answer": "Detailed explanation of red flags and why referral would be needed"
+      "question": "[SELECT ONE: What additional information from the history would be important, and why? / Which other healthcare professionals would you involve in the management plan, and what role would they play? / Which outcome measures would you use to monitor progress, and why are they appropriate? / How would the patient's social context affect your management plan? / What key examination findings help to differentiate between possible diagnoses? / What advice or education would you give this patient regarding their condition? / How would you adapt your approach if this patient were elderly/young adult/athlete? / If the patient reports worsening symptoms, how would you modify your clinical reasoning?]",
+      "answer": "Comprehensive teaching-style answer with detailed reasoning and explanations"
     }},
     {{
-      "question": "Modification if poor response",
-      "answer": "Reasoning for reassessment, alternative strategies, or referral"
+      "question": "[SELECT DIFFERENT ONE FROM ABOVE POOL]",
+      "answer": "Detailed multi-sentence explanation with clinical reasoning"
+    }},
+    {{
+      "question": "[SELECT DIFFERENT ONE FROM ABOVE POOL]",
+      "answer": "Teaching-style answer with pathophysiology and practical application"
     }}
   ]
 }}
 
 --- REQUIREMENTS ---
-1. Always make the patient unique (name, age, gender, occupation, background).  
-2. Include **pathophysiology explanations** (define medical terms).  
-3. Red flag logic must be strong and explicitly explained.  
-4. Each answer must be **at least 4–6 sentences**.  
-"""
+1. **Unique Patient Generation:**
+   - Always create DISTINCT patient names, ages (18-85), occupations, and backgrounds
+   - Vary ethnicities, genders, social situations, and medical histories
+   - Make each case completely different from previous ones
 
-        # 👇 aligned properly under try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are an expert physiotherapy educator creating unique, realistic case studies with detailed, teaching-style answers."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=2500,
-            temperature=0.8
-        )
+2. **Clinical Detail Requirements:**
+   - Include realistic pathophysiology specific to {topic}
+   - Provide specific examination findings and diagnostic results
+   - Include relevant red flags and safety considerations
+   - Use appropriate medical terminology with explanations
 
+3. **Question Requirements:**
+   - Questions 1-3 are ALWAYS the core pathophysiology, red flags, and management questions as specified
+   - Questions 4-6 should be randomly selected from the pool provided, ensuring variety
+   - Each answer MUST be 4-6+ sentences minimum
+   - Always explain technical terms (e.g., define "radiculopathy", "central sensitization", "nociception")
+   - Use a teaching tone - "explaining to a physiotherapy student"
+   - Include evidence-based reasoning and clinical decision-making
 
+4. **Educational Value:**
+   - Make answers comprehensive enough for revision notes
+   - Include practical application and clinical reasoning
+   - Connect theory to practice throughout
+   - Ensure answers build understanding, not just test knowledge
+
+Make this case study realistic, educational, and specific to {topic} physiotherapy practice."""
 
         # Call OpenAI API
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an expert physiotherapy educator creating unique, realistic case studies. Never repeat patient names or demographics. Always create fresh, diverse scenarios."},
+                {"role": "system", "content": "You are an expert physiotherapy educator creating unique, realistic case studies with detailed teaching-style answers. Always vary patient demographics and select different questions from the optional pool to ensure variety. Never repeat patient names or case details."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=2500,
-            temperature=0.8  # Higher temperature for more variety
+            max_tokens=3000,  # Increased for longer answers
+            temperature=0.8   # Higher temperature for more variety
         )
         
         # Get the AI response
@@ -130,6 +143,11 @@ Return ONLY valid JSON in this exact format:
             print("Invalid case structure, using fallback")
             case_data = get_fallback_case(topic)
         
+        # Ensure we have exactly 6 questions
+        if len(case_data.get('questions', [])) != 6:
+            print("Incorrect number of questions, using fallback")
+            case_data = get_fallback_case(topic)
+        
         # Return the structured JSON directly
         return jsonify(case_data)
         
@@ -139,7 +157,7 @@ Return ONLY valid JSON in this exact format:
         return jsonify(get_fallback_case(topic))
 
 def get_fallback_case(topic):
-    """Randomized fallback case when AI fails"""
+    """Randomized fallback case when AI fails - now with 6 questions including 3 core + 3 random"""
     
     # Random patient details for variety
     first_names = ["Aisha", "Carlos", "Priya", "Marcus", "Elena", "Kai", "Fatima", "Oliver", "Zara", "Diego", "Amara", "Liam"]
@@ -157,44 +175,73 @@ def get_fallback_case(topic):
     
     occupation = random.choice(occupations)
     
+    # Pool of optional questions for fallback
+    optional_questions = [
+        {
+            "question": "What additional information from the patient's history would be valuable for treatment planning?",
+            "answer": "Additional history should include previous episodes, family history of similar conditions, current medications, sleep patterns, and specific functional limitations. Understanding the patient's work ergonomics, exercise history, and previous treatment responses would guide more targeted interventions and help identify contributing factors."
+        },
+        {
+            "question": "Which healthcare professionals should be involved in this patient's care team?",
+            "answer": "A multidisciplinary approach may include a GP for medical management, occupational therapist for workplace modifications, psychologist for pain coping strategies if chronic pain develops, and potentially a specialist consultant if conservative management fails. Each professional brings specific expertise to address different aspects of the biopsychosocial model."
+        },
+        {
+            "question": "What outcome measures would be most appropriate to track this patient's progress?",
+            "answer": "Validated outcome measures should include pain scales (NPRS), functional disability questionnaires specific to the condition, quality of life measures, and objective measures like range of motion or strength testing. These provide quantifiable data to demonstrate progress and guide treatment modifications."
+        },
+        {
+            "question": "How does this patient's social and occupational context influence treatment planning?",
+            "answer": "The patient's work demands, family responsibilities, and social support network significantly impact recovery. Treatment timing, exercise prescription, and return-to-work planning must consider these factors. Social determinants of health, including access to healthcare and economic pressures, may affect adherence and outcomes."
+        },
+        {
+            "question": "What key physical examination findings would support your clinical hypothesis?",
+            "answer": "Specific examination findings should correlate with the suspected pathology, including range of motion limitations, strength deficits, provocative test results, and movement quality assessment. Negative findings are equally important to rule out serious pathology and guide differential diagnosis."
+        },
+        {
+            "question": "What patient education and self-management strategies would you prioritize?",
+            "answer": "Education should focus on pain science, activity modification, ergonomic principles, and self-management techniques. Teaching patients about their condition, expected recovery timeline, and warning signs empowers them to take an active role in their recovery and prevents chronicity."
+        }
+    ]
+    
+    # Select 3 random optional questions
+    selected_optional = random.sample(optional_questions, 3)
+    
+    # Core questions (always included)
+    core_questions = [
+        {
+            "question": "What are the key pathophysiological mechanisms underlying this patient's presentation?",
+            "answer": f"The {topic} condition involves tissue inflammation, altered biomechanics, and potential sensitization of nociceptors (pain receptors). Inflammatory mediators increase tissue sensitivity, while altered movement patterns can perpetuate dysfunction. Central sensitization may develop if symptoms persist, where the nervous system becomes hypersensitive to stimuli."
+        },
+        {
+            "question": "What red flags or concerning symptoms would prompt urgent referral in this case?",
+            "answer": "Red flags include progressive neurological symptoms (weakness, numbness), severe night pain, systemic symptoms (fever, weight loss), or signs of serious pathology. These may indicate conditions requiring immediate medical attention such as fractures, infections, or neurological compromise requiring urgent specialist review."
+        },
+        {
+            "question": "What is this patient's problem list, and how would you structure a comprehensive management plan?",
+            "answer": f"Primary problems include {topic} pain, functional limitations, and potential psychosocial factors. Management should address pain through manual therapy and modalities, restore function through progressive exercise, and prevent recurrence through education and lifestyle modification. Treatment should be evidence-based and patient-centered."
+        }
+    ]
+    
+    # Combine core + selected optional questions
+    all_questions = core_questions + selected_optional
+    
     return {
         "patient": {
             "name": name,
             "age": f"{age}-year-old {gender}",
             "occupation": occupation,
             "chief_complaint": f"Persistent {topic} pain affecting daily activities and work performance",
-            "social_history": f"Lives with family, enjoys recreational activities, works full-time as {occupation.lower()}. Previously active lifestyle.",
-            "goals": "Return to pain-free work activities, resume recreational sports, improve sleep quality"
+            "social_history": f"Lives with family, enjoys recreational activities, works full-time as {occupation.lower()}. Previously active lifestyle with good social support network.",
+            "goals": "Return to pain-free work activities, resume recreational sports, improve sleep quality, and prevent future episodes"
         },
         "medical": {
-            "history": f"8-week history of {topic} dysfunction following gradual onset. Initially managed with rest and over-the-counter medication with limited improvement.",
-            "symptoms": f"Moderate {topic} pain (5-7/10), morning stiffness lasting 30-60 minutes, pain increases with activity and prolonged positioning",
-            "examination": "Reduced range of motion, muscle tension, altered movement patterns, positive provocative tests consistent with condition",
-            "diagnostics": "Recent imaging shows mild to moderate degenerative changes appropriate for age. Blood work within normal limits.",
-            "outcome_measures": f"Pain Rating Scale: 6/10, Functional Disability Index: 40%, Fear-Avoidance Beliefs elevated"
+            "history": f"8-week history of {topic} dysfunction following gradual onset. Initially managed with rest and over-the-counter medication with limited improvement. No previous episodes of similar symptoms.",
+            "symptoms": f"Moderate {topic} pain (5-7/10), morning stiffness lasting 30-60 minutes, pain increases with activity and prolonged positioning. Sleep disturbance due to pain.",
+            "examination": "Reduced range of motion in affected area, muscle tension and guarding, altered movement patterns, positive provocative tests consistent with condition. No neurological deficits noted.",
+            "diagnostics": "Recent imaging shows mild to moderate degenerative changes appropriate for age. Blood work within normal limits. No signs of serious underlying pathology.",
+            "outcome_measures": f"Numeric Pain Rating Scale: 6/10, Functional Disability Index: 40%, Fear-Avoidance Beliefs Questionnaire shows elevated scores indicating activity avoidance"
         },
-        "questions": [
-            {
-                "question": "What are the key pathophysiological mechanisms underlying this patient's condition?",
-                "answer": "The condition involves tissue inflammation, altered biomechanics, and potential central sensitization. Chronic pain patterns suggest neuroplastic changes affecting pain processing and motor control."
-            },
-            {
-                "question": "Design an evidence-based treatment plan addressing all impairments identified.",
-                "answer": "Multimodal approach including manual therapy for mobility, progressive exercise for strength and endurance, movement re-education, and pain science education. Treatment frequency 2-3x weekly initially."
-            },
-            {
-                "question": "How would you address the biopsychosocial factors present in this case?",
-                "answer": "Address fear-avoidance through education and graded exposure, consider work ergonomics, involve family support, and collaborate with other healthcare providers as needed for comprehensive care."
-            },
-            {
-                "question": "What are the key red flags to monitor and when would you refer this patient?",
-                "answer": "Monitor for progressive neurological symptoms, severe night pain, systemic symptoms, or lack of improvement after 4-6 weeks of appropriate treatment. Refer for further investigation if present."
-            },
-            {
-                "question": "How would you modify treatment if the patient shows poor initial response?",
-                "answer": "Reassess diagnosis, consider additional imaging, modify exercise prescription, increase manual therapy frequency, or refer to specialist for injection therapy or surgical consultation."
-            }
-        ]
+        "questions": all_questions
     }
 
 if __name__ == '__main__':
