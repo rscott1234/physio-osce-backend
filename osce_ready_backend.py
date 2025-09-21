@@ -71,7 +71,7 @@ Return ONLY valid JSON in this exact format:
 - Q5: Modifying care if poor response (explain reasoning for reassessment/referral)  
 """
 
-Make this case study realistic, educational, and specific to {topic} physiotherapy. Include relevant anatomy, biomechanics, and evidence-based practice."""
+
 
         # Call OpenAI API
         response = client.chat.completions.create(
