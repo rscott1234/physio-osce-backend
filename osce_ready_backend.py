@@ -1,10 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
-import os
 import json
+import os
 
-app = Flask(__name__)
+pythonCORS(app, origins=["https://www.rebeccathetutor.co.uk", "https://rebeccathetutor.co.uk"])
 CORS(app)
 
 # Initialize OpenAI client
