@@ -6,155 +6,135 @@ import os
 
 app = Flask(__name__)
 
-# ✅ Enable CORS properly for your website + local testing
+# ✅ Enable CORS for your website + localhost
 CORS(app, resources={
     r"/*": {
         "origins": [
             "https://www.rebeccathetutor.co.uk",
             "https://rebeccathetutor.co.uk",
-            "http://localhost:5500",   # optional, if you test locally
+            "http://localhost:5500",
             "http://127.0.0.1:5500"
         ]
     }
 })
+
 # Initialize OpenAI client
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
-@app.route("/health", methods=["GET"])
-def health_check():
-    return jsonify({
-        "status": "OSCE-App Running!",
-        "port": os.environ.get("PORT", "5000"),
-        "features": [
-            "Detailed ROM measurements",
-            "Pathophysiological reasoning", 
-            "Outcome measures",
-            "Enhanced clinical scenarios",
-            "Mandatory Red/Orange Flags",
-            "Problem List",
-            "Treatment Indication",
-            "6 OSCE Questions (3 Core + 3 Advanced)",
-            "Biopsychosocial Model Integration",
-            "Anatomy & Physiology Deep Dive",
-            "Evidence-Based Learning"
-        ]
-    })
+@app.route('/health')
+def health():
+    return jsonify({"status": "healthy", "message": "OSCE backend is running"})
 
-@app.route("/generate-case", methods=["GET"])
+@app.route('/generate-case')
 def generate_case():
+    topic = request.args.get('topic', 'general')
+    
     try:
-        topic = request.args.get("topic", "musculoskeletal")
-        print(f"⚡ Generating enhanced OSCE case for topic: {topic}")
+        # Prompt
+        prompt = f"""Generate a detailed physiotherapy case study for {topic}. 
+Return ONLY valid JSON in this exact format:
 
-        # Enhanced prompt for comprehensive OSCE case generation
-        prompt = f"""
-        Generate a comprehensive, realistic OSCE-ready physiotherapy case study for {topic} rehabilitation.
-        
-        This case should be suitable for final-year physiotherapy students and test both clinical reasoning and deeper understanding.
+{{
+  "patient": {{
+    "name": "Patient Name",
+    "age": "Age and gender",
+    "occupation": "Job/lifestyle",
+    "chief_complaint": "Main presenting problem",
+    "social_history": "Living situation, support, activity level",
+    "goals": "Patient's functional goals"
+  }},
+  "medical": {{
+    "history": "Detailed medical history and onset",
+    "symptoms": "Current symptoms and pain patterns",
+    "examination": "Physical examination findings",
+    "diagnostics": "Imaging, tests, and results",
+    "outcome_measures": "Relevant assessment tools and scores"
+  }},
+  "questions": [
+    {{
+      "question": "Clinical reasoning question",
+      "answer": "Detailed evidence-based answer"
+    }},
+    {{
+      "question": "Treatment planning question",
+      "answer": "Plan and rationale"
+    }},
+    {{
+      "question": "Biopsychosocial consideration",
+      "answer": "Holistic answer"
+    }}
+  ]
+}}"""
 
-        Return ONLY valid JSON with this exact schema:
-
-        {{
-            "patient": {{
-                "name": "realistic UK name",
-                "age": "appropriate age for condition",
-                "occupation": "relevant occupation that impacts case",
-                "chief_complaint": "primary reason for seeking physiotherapy",
-                "social_history": "lifestyle factors, activity level, relevant social context, family situation",
-                "goals": "specific, measurable, realistic rehabilitation goals"
-            }},
-            "medical": {{
-                "history": "detailed onset, mechanism of injury/condition, progression, previous treatments, relevant medical history",
-                "symptoms": "current symptoms with specific descriptions, pain scales (0-10), functional limitations, aggravating/easing factors",
-                "examination": "specific physical examination findings including ROM measurements in degrees, strength testing (0-5 scale), special tests with results, palpation findings",
-                "diagnostics": "relevant imaging results, lab findings, or other diagnostic information with specific details",
-                "outcome_measures": "specific validated assessment tools appropriate for this condition with baseline scores where relevant"
-            }},
-            "questions": [
-                {{
-                    "question": "What are the potential red or orange flags in this presentation that would require immediate medical attention or referral?",
-                    "answer": "detailed explanation of warning signs, when to refer, and clinical reasoning behind each flag"
-                }},
-                {{
-                    "question": "What would be your comprehensive problem list for this patient, prioritized from primary to secondary issues?",
-                    "answer": "structured problem list with primary and secondary problems, explaining the rationale for prioritization"
-                }},
-                {{
-                    "question": "What evidence-based treatment approach would you recommend and provide detailed rationale for each intervention?",
-                    "answer": "comprehensive treatment plan with specific interventions, dosage/frequency, expected outcomes, and evidence base"
-                }},
-                {{
-                    "question": "Explain the pathophysiology of this condition, linking relevant anatomy and physiology to the patient's presentation and recovery process.",
-                    "answer": "detailed explanation of underlying pathophysiology, anatomical structures involved, physiological processes, and how these relate to symptoms and recovery"
-                }},
-                {{
-                    "question": "How does the biopsychosocial model apply to this case, and what psychological and social factors might influence the patient's recovery?",
-                    "answer": "comprehensive analysis of biological, psychological, and social factors, their interactions, and impact on treatment planning and outcomes"
-                }},
-                {{
-                    "question": "What key anatomical structures are involved in this condition, and how do their normal functions relate to the patient's current limitations?",
-                    "answer": "detailed anatomical explanation including specific structures, their normal function, how dysfunction leads to symptoms, and implications for treatment"
-                }}
-            ]
-        }}
-
-        IMPORTANT REQUIREMENTS:
-        - Make the case realistic and clinically accurate
-        - Include specific measurements, timeframes, and objective findings
-        - Ensure answers are detailed and educational (150-300 words each)
-        - Focus on evidence-based practice and clinical reasoning
-        - Make it appropriate for final-year physiotherapy students
-        - Include UK-relevant context where appropriate
-        - Ensure the case tests both practical skills and theoretical knowledge
-        """
-
-        print("🤖 Calling OpenAI API for enhanced case generation...")
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[ ... ],
-            max_tokens=2500,
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an expert physiotherapy educator."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=2000,
             temperature=0.7
         )
-        ai_content = response.choices[0].message.content.strip()
-        print("✅ Enhanced AI response received")
-
-        # Clean up any potential markdown formatting
-        if ai_content.startswith("```json"):
-            ai_content = ai_content[7:]
-        if ai_content.endswith("```"):
-            ai_content = ai_content[:-3]
-        ai_content = ai_content.strip()
-
-        # Parse JSON safely
-        case_data = json.loads(ai_content)
-        print("📋 Enhanced case parsed successfully - 6 questions generated")
+        
+        ai_response = response.choices[0].message.content.strip()
+        
+        # Clean up formatting
+        if ai_response.startswith("```json"):
+            ai_response = ai_response.replace("```json", "").replace("```", "").strip()
+        elif ai_response.startswith("```"):
+            ai_response = ai_response.replace("```", "").strip()
+        
+        # Parse JSON
+        try:
+            case_data = json.loads(ai_response)
+        except json.JSONDecodeError:
+            print("⚠️ JSON decode failed, using fallback.")
+            return jsonify(get_fallback_case(topic))
 
         # Validate structure
-        if not all(key in case_data for key in ["patient", "medical", "questions"]):
-            raise ValueError("Invalid case structure returned from AI")
-
+        if not all(k in case_data for k in ["patient", "medical", "questions"]):
+            print("⚠️ Missing keys, using fallback.")
+            return jsonify(get_fallback_case(topic))
+        
         return jsonify(case_data)
 
-    except json.JSONDecodeError as e:
-        print(f"❌ JSON parsing error: {e}")
-        return jsonify({"error": "Failed to parse AI response as JSON"})
-
     except Exception as e:
-        print(f"❌ Error generating case: {e}")
-        return jsonify({"error": str(e)})
+        print(f"⚠️ Error: {e}")
+        return jsonify(get_fallback_case(topic))
 
-if __name__ == "__main__":
-    print("🏥 OSCE-Ready Enhanced Physiotherapy App Starting...")
-    print("📡 Server will run on: 0.0.0.0:$PORT (Render) or 127.0.0.1:5000 (local)")
-    print("🔑 Make sure OPENAI_API_KEY environment variable is set!")
-    print("💡 Test endpoint: /health")
-    print("🎯 Enhanced Features:")
-    print("   • 6 OSCE Questions (3 Core + 3 Advanced)")
-    print("   • Pathophysiology Deep Dive")
-    print("   • Biopsychosocial Model Integration") 
-    print("   • Detailed Educational Answers")
-    print("   • Evidence-Based Clinical Reasoning")
+def get_fallback_case(topic):
+    return {
+        "patient": {
+            "name": "Sarah Johnson",
+            "age": "45-year-old female",
+            "occupation": "Office manager",
+            "chief_complaint": f"Chronic {topic} pain affecting daily activities",
+            "social_history": "Lives with spouse, two teenage children. Previously active in running and yoga.",
+            "goals": "Return to running 5km, reduce pain during work hours, improve sleep quality"
+        },
+        "medical": {
+            "history": f"6-month history of {topic} dysfunction following workplace injury.",
+            "symptoms": "Constant aching pain (6/10), morning stiffness, worsens with sitting",
+            "examination": "Reduced ROM, muscle guarding, positive provocative tests",
+            "diagnostics": "MRI shows mild degenerative changes",
+            "outcome_measures": "NPRS: 6/10, ODI: 34%, Fear-Avoidance elevated"
+        },
+        "questions": [
+            {
+                "question": "What are the key mechanisms contributing to chronic pain?",
+                "answer": "Central sensitization, inflammatory processes, and altered pain perception."
+            },
+            {
+                "question": "Design a treatment plan addressing biopsychosocial factors.",
+                "answer": "Multimodal therapy: exercise, education, manual therapy, psychological support."
+            },
+            {
+                "question": "How would you address fear-avoidance beliefs?",
+                "answer": "Gradual exposure therapy, pain science education, and graded activity."
+            }
+        ]
+    }
 
-    # Render assigns us a port via the $PORT environment variable
+if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)
