@@ -101,20 +101,10 @@ def generate_case():
         print("🤖 Calling OpenAI API for enhanced case generation...")
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system", 
-                    "content": "You are an expert physiotherapy educator and OSCE examiner with extensive clinical experience. Create comprehensive, educational cases that test both practical skills and theoretical understanding. Always respond with valid JSON only. Make answers detailed and educational to promote deep learning."
-                },
-                {
-                    "role": "user", 
-                    "content": prompt
-                }
-            ],
+            messages=[ ... ],
             max_tokens=2500,
             temperature=0.7
         )
-
         ai_content = response.choices[0].message.content.strip()
         print("✅ Enhanced AI response received")
 
@@ -128,6 +118,20 @@ def generate_case():
         # Parse JSON safely
         case_data = json.loads(ai_content)
         print("📋 Enhanced case parsed successfully - 6 questions generated")
+
+        # Validate structure
+        if not all(key in case_data for key in ["patient", "medical", "questions"]):
+            raise ValueError("Invalid case structure returned from AI")
+
+        return jsonify(case_data)
+
+    except json.JSONDecodeError as e:
+        print(f"❌ JSON parsing error: {e}")
+        return jsonify({"error": "Failed to parse AI response as JSON"})
+
+    except Exception as e:
+        print(f"❌ Error generating case: {e}")
+        return jsonify({"error": str(e)})
 
 if __name__ == "__main__":
     print("🏥 OSCE-Ready Enhanced Physiotherapy App Starting...")
