@@ -31,57 +31,45 @@ def generate_case():
     topic = request.args.get('topic', 'general')
     
     try:
-        # Enhanced prompt for unique, varied cases
-        prompt = f"""Generate a completely unique and realistic physiotherapy case study for {topic}. 
+       prompt = f"""Generate a completely unique and realistic physiotherapy case study for {topic}. 
 
-IMPORTANT REQUIREMENTS:
-- Always create UNIQUE patient names (avoid common names like Sarah Johnson, John Smith)
-- Vary ages from 18-85 years old depending on condition appropriateness
-- Use diverse ethnicities, genders, and occupations
-- Make each case distinctly different from previous ones
-- Include realistic red flags or complications when appropriate
-
+--- FORMAT ---
 Return ONLY valid JSON in this exact format:
 
 {{
-  "patient": {{
-    "name": "Unique patient name (first and last)",
-    "age": "Age in years and gender (e.g., 34-year-old male)",
-    "occupation": "Specific job or lifestyle description",
-    "chief_complaint": "Primary presenting problem in patient's words",
-    "social_history": "Living situation, family support, activity level, hobbies",
-    "goals": "Specific functional goals the patient wants to achieve"
-  }},
-  "medical": {{
-    "history": "Detailed onset, mechanism of injury, progression, previous treatments",
-    "symptoms": "Current pain patterns, functional limitations, aggravating/easing factors",
-    "examination": "Objective findings, range of motion, strength, special tests, posture",
-    "diagnostics": "Imaging results, blood work, other diagnostic tests with specific findings",
-    "outcome_measures": "Specific validated assessment tools with baseline scores"
-  }},
+  "patient": {{ ... }},
+  "medical": {{ ... }},
   "questions": [
     {{
-      "question": "What are the key pathophysiological mechanisms underlying this patient's condition?",
-      "answer": "Detailed explanation of tissue pathology, pain mechanisms, and physiological processes involved"
+      "question": "Clinical reasoning question",
+      "answer": "Comprehensive teaching-style answer with detailed explanation"
     }},
-    {{
-      "question": "Design an evidence-based treatment plan addressing all impairments identified.",
-      "answer": "Comprehensive treatment approach with specific techniques, dosage, and progression rationale"
-    }},
-    {{
-      "question": "How would you address the biopsychosocial factors present in this case?",
-      "answer": "Holistic approach considering psychological, social, and lifestyle factors affecting recovery"
-    }},
-    {{
-      "question": "What are the key red flags to monitor and when would you refer this patient?",
-      "answer": "Specific warning signs, contraindications, and appropriate referral pathways"
-    }},
-    {{
-      "question": "How would you modify treatment if the patient shows poor initial response?",
-      "answer": "Alternative approaches, reassessment strategies, and clinical reasoning for treatment modification"
-    }}
+    ...
   ]
 }}
+
+--- REQUIREMENTS ---
+1. **Unique Patient Case**  
+- Always create DISTINCT patient names, ages, occupations, and socioeconomic variations.  
+- Vary medical/trauma history, ethnic backgrounds, and social factors.  
+
+2. **Detail in Clinical Sections**  
+- Pathophysiology: Provide biomechanical, anatomical, or neurological mechanisms involved.  
+- Red Flags/Referral: Expand on why each is significant, and what specialist would be appropriate.  
+- Diagnostics: Include examples of specific imaging or scoring scales.  
+
+3. **Answer Depth**  
+- Each answer MUST be **4–6 sentences minimum**, with detailed reasoning.  
+- Always explain technical terms (e.g., define “radiculopathy”, “central sensitization”, “facet arthropathy”) so students learn the meaning.  
+- Use a tone of **“explaining to a physiotherapy student”**.  
+
+4. **Question Set (Example)**  
+- Q1: Pathophysiological mechanisms (detailed, with teaching explanation of terms)  
+- Q2: Evidence-based treatment plan (with detailed rationale & progression examples)  
+- Q3: Biopsychosocial considerations (including practical strategies)  
+- Q4: Red flags & referral criteria (explain what each red flag means, and why it matters)  
+- Q5: Modifying care if poor response (explain reasoning for reassessment/referral)  
+"""
 
 Make this case study realistic, educational, and specific to {topic} physiotherapy. Include relevant anatomy, biomechanics, and evidence-based practice."""
 
