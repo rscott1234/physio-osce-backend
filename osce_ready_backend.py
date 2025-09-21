@@ -100,12 +100,19 @@ Return ONLY valid JSON in this exact format:
    - Always explain technical terms (e.g., define "radiculopathy", "central sensitization", "nociception")
    - Use a teaching tone - "explaining to a physiotherapy student"
    - Include evidence-based reasoning and clinical decision-making
+   - Always explain any medical terminology
+   - Use a teaching tone aimed at physiotherapy students
+   - ✅ Write in the 3rd person (formal academic style)
+   - ✅ Never use "I" or first-person; instead use clinical/teaching phrasing
+   - Use English (UK) spelling and terminology throughout (e.g. "organise", "orthopaedic", "oedema", "paediatrics")
 
 4. **Educational Value:**
    - Make answers comprehensive enough for revision notes
    - Include practical application and clinical reasoning
    - Connect theory to practice throughout
    - Ensure answers build understanding, not just test knowledge
+   - Ensure answers are comprehensive revision notes
+   - Bridge theory and clinical reasoning
 
 Make this case study realistic, educational, and specific to {topic} physiotherapy practice."""
 
