@@ -1,17 +1,18 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
-import json, os
+import json
+import os
 
 app = Flask(__name__)
 
-# ✅ Allow your website + localhost testing
+# ✅ Enable CORS properly for your website + local testing
 CORS(app, resources={
     r"/*": {
         "origins": [
             "https://www.rebeccathetutor.co.uk",
             "https://rebeccathetutor.co.uk",
-            "http://localhost:5500",
+            "http://localhost:5500",   # optional, if you test locally
             "http://127.0.0.1:5500"
         ]
     }
