@@ -1,12 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
-import json
-import os
+import json, os
 
 app = Flask(__name__)
 
-# ✅ Allow your site + optional localhost (for dev testing)
+# ✅ Allow your website + localhost testing
 CORS(app, resources={
     r"/*": {
         "origins": [
@@ -17,7 +16,6 @@ CORS(app, resources={
         ]
     }
 })
-
 # Initialize OpenAI client
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
