@@ -127,7 +127,7 @@ def generate_case():
 
         # Parse JSON safely
         case_data = json.loads(ai_content)
-        print("📋 Enhanced case parsed successfully - 6 questions
+       print("📋 Enhanced case parsed successfully - 6 questions generated")
 
 if __name__ == "__main__":
     print("🏥 OSCE-Ready Enhanced Physiotherapy App Starting...")
