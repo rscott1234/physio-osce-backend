@@ -5,7 +5,14 @@ import json
 import os
 
 app = Flask(__name__)
-CORS(app, origins=["https://www.rebeccathetutor.co.uk", "https://rebeccathetutor.co.uk"])
+
+# ✅ Allow both your website and local testing
+CORS(app, origins=[
+    "https://www.rebeccathetutor.co.uk",
+    "https://rebeccathetutor.co.uk",
+    "http://localhost:5500",  # in case you test locally via VS Code Live Server
+    "http://127.0.0.1:5500"
+])
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
