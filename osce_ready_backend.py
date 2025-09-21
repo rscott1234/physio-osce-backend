@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect, session, render_template, url_for
 from flask_cors import CORS
 from openai import OpenAI
 import json
@@ -6,6 +6,7 @@ import os
 import random
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "supersecret")
 
 # ✅ Enable CORS for your website
 CORS(app, resources={
@@ -18,6 +19,11 @@ CORS(app, resources={
         ]
     }
 })
+
+# Patreon OAuth config
+CLIENT_ID = os.environ.get("PATREON_CLIENT_ID")
+CLIENT_SECRET = os.environ.get("PATREON_CLIENT_SECRET")
+REDIRECT_URI = "https://physio-osce-backend.onrender.com/callback"
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -250,6 +256,43 @@ def get_fallback_case(topic):
         },
         "questions": all_questions
     }
+
+
+@app.route("/osce")
+def premium():
+    """Serve premium OSCE page only to patrons"""
+    if "patreon_token" not in session:
+        return redirect(
+            f"https://www.patreon.com/oauth2/authorize"
+            f"?response_type=code&client_id={CLIENT_ID}"
+            f"&redirect_uri={REDIRECT_URI}"
+            f"&scope=identity%20identity.memberships"
+        )
+    
+    resp = requests.get(
+        "https://www.patreon.com/api/oauth2/v2/identity?include=memberships",
+        headers={"Authorization": f"Bearer {session['patreon_token']}"}
+    )
+    data = resp.json()
+    memberships = data.get("included", [])
+    if memberships:
+        return render_template("osce.html")
+    return "🔒 Access denied – please support us on Patreon."
+
+@app.route("/callback")
+def callback():
+    """Patreon redirects here after login"""
+    code = request.args.get("code")
+    token_resp = requests.post("https://www.patreon.com/api/oauth2/token", data={
+        "code": code, "grant_type": "authorization_code",
+        "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET,
+        "redirect_uri": REDIRECT_URI
+    }).json()
+    session["patreon_token"] = token_resp["access_token"]
+    return redirect(url_for("premium"))
+
+
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

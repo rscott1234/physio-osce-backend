@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSCE‑Ready - Physiotherapy Exam Prep</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url("trees.jpg") no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+    .header { background: linear-gradient(135deg,#2c3e50,#3498db); color: white; padding: 30px; text-align: center; }
+    .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .ai-badge, .enhanced-badge, .osce-badge {
+      padding: 5px 15px; border-radius: 20px; font-size: 0.8em; font-weight: bold; color: white; margin: 5px; display: inline-block;
+    }
+    .ai-badge { background: linear-gradient(135deg,#ff6b6b,#ee5a24); }
+    .enhanced-badge { background: linear-gradient(135deg,#00b894,#00a085); }
+    .osce-badge { background: linear-gradient(135deg,#f39c12,#e67e22); }
+    .section-logo {
+  display: block; /* Ensures it's on a separate line */
+  margin: 20px auto; /* Centers the logo */
+  width: 60px; /* Adjust size as needed */
+  text-align: center; /* Centers content inside if needed */
+}
+  .topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);   /* max 3 per row */
+  gap: 15px;
+  margin: 20px;
+  padding: 10px;
+}
+
+/* On medium devices (e.g. tablets): 2 per row */
+@media (max-width: 900px) {
+  .topic-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* On small devices (phones): 1 per row */
+@media (max-width: 600px) {
+  .topic-grid {
+    grid-template-columns: 1fr;
+  }
+}
+    .topic-btn {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+  border: none;
+  padding: 18px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);   /* New subtle shadow */
+}
+    .case-card { display:none; background:#f8f9fa; border-radius:10px; padding:25px; margin-top:20px; border-left:5px solid #3498db; }
+    .section { background:white; padding:15px; border-radius:8px; margin-bottom:20px; }
+    .section h4 { border-bottom:2px solid #3498db; padding-bottom:5px; margin-bottom:10px; color:#2c3e50; }
+    .qa { background:white; padding:15px; border-radius:8px; margin-bottom:15px; border-left:4px solid #f39c12; }
+    .q { font-weight:600; color:#d35400; margin-bottom:10px; }
+    .answer { display:none; background:#e8f5e9; padding:10px; margin-top:10px; border-left:3px solid #27ae60; }
+    .reveal-btn { display:inline-block; margin-top:8px; padding:6px 10px; border:none; border-radius:6px; background:#27ae60; color:white; cursor:pointer; }
+    
+    #newCaseBtn {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  border: none;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+#newCaseBtn:hover {
+  transform: translateY(-2px);
+}
+
+    .status {
+  margin: 25px 0 15px;  /* ↑ extra space on top */
+  text-align: center;
+}
+    .badge { padding:6px 12px; border-radius:20px; font-size:0.8em; background:#eef2ff; color:#3c4ae0; }
+    .error { background:#fff0f0; color:#b00020; }
+    
+    .cta-container { text-align:center; margin-top:24px; }
+    .cta-container a {
+      display:inline-block; padding:12px 22px; background: #009688; color:#fff;
+      font-weight:600; border-radius:8px; text-decoration:none;
+      box-shadow:0 4px 10px rgba(0,0,0,0.2); line-height:1.4;
+    }
+    .cta-container a:hover { transform:translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,0.25); }
+    
+    #downloadBtn {
+  background: linear-gradient(135deg, #0984e3, #74b9ff);
+  border: none;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+#downloadBtn:hover {
+  transform: translateY(-2px);
+}
+
+/* Global Dark Mode */
+body.dark-mode {
+  background: #121212 !important;
+  color: #f5f5f5;
+}
+
+body.dark-mode .container {
+  background: #181818;
+}
+
+body.dark-mode .header {
+  background: linear-gradient(135deg, #1f1f1f, #2c3e50);
+}
+
+/* Case Card Styling */
+body.dark-mode .case-card {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  color: #f5f5f5;
+}
+
+/* Section Blocks (Patient / Medical info) */
+body.dark-mode .section {
+  background: #2a2a2a;
+  border: 1px solid #444;
+}
+
+body.dark-mode .section h4 {
+  color: #80c0ff;  /* give section headings a nice accent */
+  border-bottom-color: #3498db;
+}
+
+/* Q&A Blocks */
+body.dark-mode .qa {
+  background: #2f2f2f;
+  border-left: 4px solid #f39c12;
+}
+
+body.dark-mode .q {
+  color: #f8c471;
+}
+
+body.dark-mode .answer {
+  background: #263f26;
+  color: #d5f5e3;
+  border-left: 3px solid #27ae60;
+}
+
+/* Reveal Button */
+body.dark-mode .reveal-btn {
+  background: #27ae60;
+  color: white;
+}
+
+/* CTA + Buttons */
+body.dark-mode .cta-container a,
+body.dark-mode #newCaseBtn,
+body.dark-mode #downloadBtn {
+  background: linear-gradient(135deg, #2980b9, #6dd5fa);
+  color: white;
+}
+
+@media print {
+  #newCaseBtn, #downloadBtn, .reveal-btn, #toggleTheme { display:none !important; }
+}
+
+.case-card {
+  overflow: visible !important;
+  max-height: unset !important;
+}
+
+  </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<button id="toggleTheme">🌙 Dark Mode</button>
+  <div class="container">
+    <div class="header">
+      <h1>OSCE‑Ready: Physiotherapy Exam Prep</h1>
+      <p>Dynamic practice cases for physiotherapy students</p>
+      <div class="ai-badge"></div>
+      <div class="enhanced-badge"></div>
+      <div class="osce-badge"></div>
+    </div>
+<img src="logo.png" alt="Logo" class="section-logo">
+    <div class="topic-grid" id="topicGrid">
+     <button class="topic-btn" data-topic="Musculoskeletal">Musculoskeletal</button>
+<button class="topic-btn" data-topic="Neurological">Neurological</button>
+<button class="topic-btn" data-topic="Cardiopulmonary">Cardiopulmonary</button>
+<button class="topic-btn" data-topic="Paediatric">Paediatric</button>
+<button class="topic-btn" data-topic="Elderly Rehabilitation">Elderly Rehabilitation</button>
+<button class="topic-btn" data-topic="Sports Rehabilitation">Sports Rehabilitation</button>
+    </div>
+<img src="logo.png" alt="Logo" class="section-logo">
+    <div class="status">
+      <span id="statusBadge" class="badge">Idle</span>
+      <span id="errorBadge" class="badge error" style="display:none;">Error</span>
+    </div>
+
+    <div class="case-card" id="caseCard">
+      <h3 id="caseTitle">Case Study</h3>
+      <div class="section"><h4>Patient Information</h4>
+        <p id="p_name"></p><p id="p_age"></p><p id="p_occ"></p>
+        <p id="p_cc"></p><p id="p_sh"></p><p id="p_goals"></p>
+      </div>
+      <div class="section"><h4>Clinical Presentation</h4>
+        <p id="m_history"></p><p id="m_symptoms"></p><p id="m_exam"></p>
+        <p id="m_diag"></p><p id="m_outcomes"></p>
+      </div>
+      <div class="section"><h4>OSCE Questions</h4>
+        <div id="qaContainer"></div><div class="cta-container" style="margin-top:16px;">
+  <button id="downloadBtn">⬇️ Download Case</button>
+      <button id="newCaseBtn">🔄 Generate Another Case</button>
+</div></div> 
+      
+      
+ 
+    </div>
+  
+    <!-- CTA Button -->
+      <div class="cta-container">
+        <a href="https://www.rebeccathetutor.co.uk" target="_blank">
+          🎓 Looking for deeper understanding? 🎓<br> 💡 Book a 1‑to‑1 Tutoring Session 💡
+        </a>
+        <p></p>
+      </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = "https://physio-osce-backend.onrender.com";
+    const e = id => document.getElementById(id);
+    const statusBadge = e("statusBadge"); const errorBadge = e("errorBadge"); const qaContainer = e("qaContainer"); const caseCard = e("caseCard");
+
+    function setStatus(msg){ statusBadge.textContent = msg; }
+    function showError(msg){ errorBadge.style.display="inline-block"; errorBadge.textContent=msg; setTimeout(()=>errorBadge.style.display="none",5000); }
+
+    function nl2p(str){ return (str||"").split(/\n+/).map(p=>`<p>${p}</p>`).join(""); }
+
+    function renderCase(topic,data){
+      caseCard.style.display="block";
+      e("caseTitle").textContent = `Case Study – ${topic}`;
+      e("p_name").innerHTML = `<strong>Name:</strong> ${data.patient?.name||''}`;
+      e("p_age").innerHTML = `<strong>Age:</strong> ${data.patient?.age||''}`;
+      e("p_occ").innerHTML = `<strong>Occupation:</strong> ${data.patient?.occupation||''}`;
+      e("p_cc").innerHTML = `<strong>Chief Complaint:</strong> ${data.patient?.chief_complaint||''}`;
+      e("p_sh").innerHTML = `<strong>Social History:</strong> ${nl2p(data.patient?.social_history)}`;
+      e("p_goals").innerHTML = `<strong>Goals:</strong> ${nl2p(data.patient?.goals)}`;
+      e("m_history").innerHTML = `<strong>History:</strong> ${nl2p(data.medical?.history)}`;
+      e("m_symptoms").innerHTML = `<strong>Symptoms:</strong> ${nl2p(data.medical?.symptoms)}`;
+      e("m_exam").innerHTML = `<strong>Examination:</strong> ${nl2p(data.medical?.examination)}`;
+      e("m_diag").innerHTML = `<strong>Diagnostics:</strong> ${nl2p(data.medical?.diagnostics)}`;
+      e("m_outcomes").innerHTML = `<strong>Outcome Measures:</strong> ${nl2p(data.medical?.outcome_measures)}`;
+
+      qaContainer.innerHTML = "";
+      (data.questions||[]).forEach((qa,idx)=>{
+        const d=document.createElement("div"); d.className="qa";
+        d.innerHTML = `<p class="q"><strong>Q${idx+1}:</strong> ${qa.question}</p>
+          <button class="reveal-btn" onclick="this.nextElementSibling.style.display='block'; this.style.display='none'">Reveal Answer</button>
+          <div class="answer"><p><strong>Answer:</strong> ${qa.answer}</p></div>`;
+        qaContainer.appendChild(d);
+      });
+    }
+
+    async function generateCase(topic){
+      try{
+        setStatus("Loading… Please Wait...");
+        const res=await fetch(`${BACKEND_URL}/generate-case?topic=${encodeURIComponent(topic)}`);
+        const data=await res.json();
+        if(data && data.patient){ renderCase(topic,data); setStatus("Ready"); }
+        else { showError("Bad data"); setStatus("Idle"); }
+      }catch(err){ console.error(err); showError("Backend unreachable"); setStatus("Idle"); }
+    }
+
+    document.getElementById("topicGrid").addEventListener("click",ev=>{
+      const btn=ev.target.closest(".topic-btn"); if(!btn) return;
+      const topic=btn.getAttribute("data-topic"); generateCase(topic);
+    });
+
+    window.addEventListener("load", async ()=>{
+      try{ let r=await fetch(`${BACKEND_URL}/health`); if(r.ok) setStatus("Ready"); else setStatus("Offline"); }
+      catch{ setStatus("Offline"); }
+    });
+    
+    // Store last topic used
+let lastTopic = null;
+
+async function generateCase(topic){
+  lastTopic = topic;  // track for "Generate Another Case"
+  try {
+    setStatus("Loading…");
+    const res = await fetch(`${BACKEND_URL}/generate-case?topic=${encodeURIComponent(topic)}`);
+    const data = await res.json();
+    if(data && data.patient){ 
+      renderCase(topic,data); 
+      setStatus("Ready"); 
+    }
+    else { showError("Bad data"); setStatus("Idle"); }
+  } catch(err){ console.error(err); showError("Backend unreachable"); setStatus("Idle"); }
+}
+
+// "Generate Another Case"
+document.getElementById("newCaseBtn").addEventListener("click", ()=>{
+  if(lastTopic) generateCase(lastTopic);
+});
+
+// When button is clicked
+document.querySelectorAll(".topic-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    let topic = button.dataset.topic;        // still send this to backend
+    let label = button.innerText;            // pretty version for display
+    
+    generateCase(topic);                     // backend uses this
+    caseTitle.innerText = `Case Study – ${label}`;  // prettier on page
+  });
+});
+
+
+
+const themeBtn = document.getElementById("toggleTheme");
+themeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+  if (document.body.classList.contains("dark-mode")) {
+    themeBtn.innerText = "☀️ Light Mode";
+  } else {
+    themeBtn.innerText = "🌙 Dark Mode";
+  }
+});
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const caseCard = document.querySelector(".case-card");
+  if (!caseCard || caseCard.style.display === "none") {
+    alert("⚠️ No case to download yet!");
+    return;
+  }
+
+  // Create new PDF
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  let yPosition = 20;
+  const pageHeight = doc.internal.pageSize.height;
+  const margin = 20;
+  const lineHeight = 7;
+  
+  // Helper function to add text with word wrapping
+  function addText(text, fontSize = 12, isBold = false) {
+    doc.setFontSize(fontSize);
+    if (isBold) doc.setFont(undefined, 'bold');
+    else doc.setFont(undefined, 'normal');
+    
+    const splitText = doc.splitTextToSize(text, 170);
+    
+    // Check if we need a new page
+    if (yPosition + (splitText.length * lineHeight) > pageHeight - margin) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    doc.text(splitText, margin, yPosition);
+    yPosition += splitText.length * lineHeight + 5;
+  }
+  
+  // Add title
+  addText("OSCE Case Study", 18, true);
+  yPosition += 5;
+  
+  // Extract and add patient info
+  const patientSection = caseCard.querySelector('.section');
+  if (patientSection) {
+    addText("PATIENT INFORMATION", 14, true);
+    const patientText = patientSection.innerText.replace(/PATIENT INFORMATION\s*/, '');
+    addText(patientText);
+    yPosition += 5;
+  }
+  
+  // Extract and add medical info
+  const sections = caseCard.querySelectorAll('.section');
+  if (sections.length > 1) {
+    addText("MEDICAL INFORMATION", 14, true);
+    const medicalText = sections[1].innerText.replace(/MEDICAL INFORMATION\s*/, '');
+    addText(medicalText);
+    yPosition += 5;
+  }
+  
+  // Extract and add all Q&As
+  const qaBlocks = caseCard.querySelectorAll('.qa');
+  if (qaBlocks.length > 0) {
+    addText("QUESTIONS & ANSWERS", 14, true);
+    
+    qaBlocks.forEach((qa, index) => {
+      const question = qa.querySelector('.q');
+      const answer = qa.querySelector('.answer');
+      
+      if (question) {
+        addText(`Q${index + 1}: ${question.innerText}`, 12, true);
+      }
+      
+      if (answer) {
+        addText(`Answer: ${answer.innerText}`, 11);
+      }
+      
+      yPosition += 3; // Extra space between Q&As
+    });
+  }
+  
+  // Save the PDF
+  doc.save('OSCE_case_study.pdf');
+});
+  </script>
+</body>
+</html>
