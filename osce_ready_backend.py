@@ -4,6 +4,7 @@ from openai import OpenAI
 import json
 import os
 import random
+import requests   # 👈 ADD THIS LINE
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "supersecret")
