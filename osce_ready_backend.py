@@ -31,45 +31,68 @@ def generate_case():
     topic = request.args.get('topic', 'general')
     
     try:
-       prompt = f"""Generate a completely unique and realistic physiotherapy case study for {topic}. 
+        prompt = f"""Generate a completely unique and realistic physiotherapy case study for {topic}. 
 
 --- FORMAT ---
 Return ONLY valid JSON in this exact format:
 
 {{
-  "patient": {{ ... }},
-  "medical": {{ ... }},
+  "patient": {{ 
+    "name": "Unique patient name",
+    "age": "Age in years and gender",
+    "occupation": "Job or lifestyle",
+    "chief_complaint": "Main presenting problem",
+    "social_history": "Social details",
+    "goals": "Functional goals"
+  }},
+  "medical": {{
+    "history": "Medical history details",
+    "symptoms": "Current symptoms",
+    "examination": "Findings",
+    "diagnostics": "Investigations",
+    "outcome_measures": "Scores used"
+  }},
   "questions": [
     {{
-      "question": "Clinical reasoning question",
-      "answer": "Comprehensive teaching-style answer with detailed explanation"
+      "question": "Detailed clinical reasoning question",
+      "answer": "Comprehensive multi-sentence answer with pathophysiology detail, red flags, and definitions of key terms"
     }},
-    ...
+    {{
+      "question": "Evidence-based treatment plan",
+      "answer": "Detailed description with rationales and progression"
+    }},
+    {{
+      "question": "Biopsychosocial considerations",
+      "answer": "Holistic explanation linking psychosocial barriers to recovery"
+    }},
+    {{
+      "question": "Red flags and referral criteria",
+      "answer": "Detailed explanation of red flags and why referral would be needed"
+    }},
+    {{
+      "question": "Modification if poor response",
+      "answer": "Reasoning for reassessment, alternative strategies, or referral"
+    }}
   ]
 }}
 
 --- REQUIREMENTS ---
-1. **Unique Patient Case**  
-- Always create DISTINCT patient names, ages, occupations, and socioeconomic variations.  
-- Vary medical/trauma history, ethnic backgrounds, and social factors.  
-
-2. **Detail in Clinical Sections**  
-- Pathophysiology: Provide biomechanical, anatomical, or neurological mechanisms involved.  
-- Red Flags/Referral: Expand on why each is significant, and what specialist would be appropriate.  
-- Diagnostics: Include examples of specific imaging or scoring scales.  
-
-3. **Answer Depth**  
-- Each answer MUST be **4–6 sentences minimum**, with detailed reasoning.  
-- Always explain technical terms (e.g., define “radiculopathy”, “central sensitization”, “facet arthropathy”) so students learn the meaning.  
-- Use a tone of **“explaining to a physiotherapy student”**.  
-
-4. **Question Set (Example)**  
-- Q1: Pathophysiological mechanisms (detailed, with teaching explanation of terms)  
-- Q2: Evidence-based treatment plan (with detailed rationale & progression examples)  
-- Q3: Biopsychosocial considerations (including practical strategies)  
-- Q4: Red flags & referral criteria (explain what each red flag means, and why it matters)  
-- Q5: Modifying care if poor response (explain reasoning for reassessment/referral)  
+1. Always make the patient unique (name, age, gender, occupation, background).  
+2. Include **pathophysiology explanations** (define medical terms).  
+3. Red flag logic must be strong and explicitly explained.  
+4. Each answer must be **at least 4–6 sentences**.  
 """
+
+        # 👇 aligned properly under try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an expert physiotherapy educator creating unique, realistic case studies with detailed, teaching-style answers."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=2500,
+            temperature=0.8
+        )
 
 
 
