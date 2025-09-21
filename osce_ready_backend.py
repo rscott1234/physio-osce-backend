@@ -4,8 +4,8 @@ from openai import OpenAI
 import json
 import os
 
-pythonCORS(app, origins=["https://www.rebeccathetutor.co.uk", "https://rebeccathetutor.co.uk"])
-CORS(app)
+app = Flask(__name__)
+CORS(app, origins=["https://www.rebeccathetutor.co.uk", "https://rebeccathetutor.co.uk"])
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
