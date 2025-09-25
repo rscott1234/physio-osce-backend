@@ -261,6 +261,7 @@ def get_fallback_case(topic):
 
 @app.route("/osce")
 def premium():
+"""Serve premium OSCE page only to patrons"""
     if "patreon_token" not in session:
         return redirect(
             f"https://www.patreon.com/oauth2/authorize"
@@ -276,19 +277,15 @@ def premium():
     )
     data = resp.json()
 
-    # 👇 TEMP DEBUG - print whole response to Render logs
-    print(json.dumps(data, indent=2))
+    included = data.get("included", [])
 
- included = data.get("included", [])
+    for obj in included:
+        if obj.get("type") == "member":
+            status = obj.get("attributes", {}).get("patron_status")
+            if status == "active_patron":
+                return render_template("osce.html")
 
-for obj in included:
-    if obj.get("type") == "member":
-        status = obj.get("attributes", {}).get("patron_status")
-        if status == "active_patron":
-            return render_template("osce.html")
-
-return "🔒 Access denied – you must be an active patron."
-
+    return "🔒 Access denied – you must be an active patron."
 @app.route("/callback")
 def callback():
     """Patreon redirects here after login"""
