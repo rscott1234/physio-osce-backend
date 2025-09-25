@@ -261,7 +261,6 @@ def get_fallback_case(topic):
 
 @app.route("/osce")
 def premium():
-    """Serve premium OSCE page only to patrons"""
     if "patreon_token" not in session:
         return redirect(
             f"https://www.patreon.com/oauth2/authorize"
@@ -270,25 +269,25 @@ def premium():
             f"&scope=identity%20identity.memberships"
         )
 
-    # Request user identity + memberships + entitled tiers
     resp = requests.get(
         "https://www.patreon.com/api/oauth2/v2/identity"
         "?include=memberships,memberships.currently_entitled_tiers",
         headers={"Authorization": f"Bearer {session['patreon_token']}"}
     )
     data = resp.json()
+
+    # 👇 TEMP DEBUG - print whole response to Render logs
+    print(json.dumps(data, indent=2))
+
     included = data.get("included", [])
 
-    # 👇 Replace with your real Patreon Tier ID(s) as strings
-    allowed_tier_ids = {"25997257","25997230","25997321"}  
-
     for obj in included:
-    if obj.get("type") == "member":
-        status = obj.get("attributes", {}).get("patron_status")
-        if status == "active_patron":
-            return render_template("osce.html")
+        if obj.get("type") == "member":
+            status = obj.get("attributes", {}).get("patron_status")
+            if status == "active_patron":
+                return render_template("osce.html")
 
-    return "🔒 Access denied – you must be an active patron at the correct tier."
+    return "🔒 Access denied – you must be an active patron."
 
 @app.route("/callback")
 def callback():
