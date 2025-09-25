@@ -269,16 +269,31 @@ def premium():
             f"&redirect_uri={REDIRECT_URI}"
             f"&scope=identity%20identity.memberships"
         )
-    
+
+    # Request user identity + memberships + entitled tiers
     resp = requests.get(
-        "https://www.patreon.com/api/oauth2/v2/identity?include=memberships",
+        "https://www.patreon.com/api/oauth2/v2/identity"
+        "?include=memberships,memberships.currently_entitled_tiers",
         headers={"Authorization": f"Bearer {session['patreon_token']}"}
     )
     data = resp.json()
-    memberships = data.get("included", [])
-    if memberships:
-        return render_template("osce.html")
-    return "🔒 Access denied – please support us on Patreon."
+    included = data.get("included", [])
+
+    # 👇 Replace with your real Patreon Tier ID(s) as strings
+    allowed_tier_ids = {"25997257","25997230","25997321"}  
+
+    for obj in included:
+        if obj.get("type") == "member":
+            status = obj.get("attributes", {}).get("patron_status")
+            if status == "active_patron":
+                tiers = obj.get("relationships", {}).get(
+                    "currently_entitled_tiers", {}
+                )
+                for ref in tiers.get("data", []):
+                    if ref["id"] in allowed_tier_ids:
+                        return render_template("osce.html")
+
+    return "🔒 Access denied – you must be an active patron at the correct tier."
 
 @app.route("/callback")
 def callback():
