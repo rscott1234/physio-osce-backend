@@ -303,7 +303,10 @@ def callback():
     session["patreon_token"] = token_resp["access_token"]
     return redirect(url_for("premium"))
 
-
+@app.route("/logout")
+def logout():
+    session.pop("patreon_token", None)
+    return redirect("/")
 
 
 if __name__ == "__main__":
