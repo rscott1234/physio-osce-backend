@@ -277,9 +277,10 @@ def premium():
     )
     data = resp.json()
 
-    # 👇 TEMP DEBUG - dump full Patreon response to logs
-    print("=== Patreon API Response ===")
-    print(json.dumps(data, indent=2))
+# 👇 DEBUG: dump Patreon response to Render logs
+import json
+print("=== Patreon API Response ===")
+print(json.dumps(data, indent=2))
 
     included = data.get("included", []) or []
 
