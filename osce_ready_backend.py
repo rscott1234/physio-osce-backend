@@ -286,7 +286,9 @@ def premium():
             if status == "active_patron":
                 return render_template("osce.html")
 
-    return "🔒 Access denied – you must be an active patron."@app.route("/callback")
+    return "🔒 Access denied – you must be an active patron."
+
+@app.route("/callback")
 def callback():
     """Patreon redirects here after login"""
     code = request.args.get("code")
