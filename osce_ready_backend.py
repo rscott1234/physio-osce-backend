@@ -277,10 +277,10 @@ def premium():
     )
     data = resp.json()
 
-# 👇 DEBUG: dump Patreon response to Render logs
-import json
-print("=== Patreon API Response ===")
-print(json.dumps(data, indent=2))
+    # DEBUG: dump Patreon response to Render logs
+    import json
+    print("=== Patreon API Response ===")
+    print(json.dumps(data, indent=2))
 
     included = data.get("included", []) or []
 
@@ -291,7 +291,6 @@ print(json.dumps(data, indent=2))
                 return render_template("osce.html")
 
     return "🔒 Access denied – you must be an active patron."
-
 
 @app.route("/callback")
 def callback():
