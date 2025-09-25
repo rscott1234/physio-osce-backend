@@ -283,15 +283,10 @@ def premium():
     allowed_tier_ids = {"25997257","25997230","25997321"}  
 
     for obj in included:
-        if obj.get("type") == "member":
-            status = obj.get("attributes", {}).get("patron_status")
-            if status == "active_patron":
-                tiers = obj.get("relationships", {}).get(
-                    "currently_entitled_tiers", {}
-                )
-                for ref in tiers.get("data", []):
-                    if ref["id"] in allowed_tier_ids:
-                        return render_template("osce.html")
+    if obj.get("type") == "member":
+        status = obj.get("attributes", {}).get("patron_status")
+        if status == "active_patron":
+            return render_template("osce.html")
 
     return "🔒 Access denied – you must be an active patron at the correct tier."
 
