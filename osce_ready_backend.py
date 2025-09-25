@@ -277,10 +277,9 @@ def premium():
     )
     data = resp.json()
 
-    # DEBUG: dump Patreon response to Render logs
+    # 🔎 TEMP DEBUG: show JSON directly in the browser
     import json
-    print("=== Patreon API Response ===")
-    print(json.dumps(data, indent=2))
+    return f"<pre>{json.dumps(data, indent=2)}</pre>"
 
     included = data.get("included", []) or []
 
