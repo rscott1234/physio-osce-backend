@@ -259,10 +259,13 @@ def get_fallback_case(topic):
     }
 
 
+import json
+
 @app.route("/osce")
 def premium():
     """Serve premium OSCE page only to patrons"""
     if "patreon_token" not in session:
+        # ✅ Make sure scopes include identity.memberships
         return redirect(
             f"https://www.patreon.com/oauth2/authorize"
             f"?response_type=code&client_id={CLIENT_ID}"
@@ -277,20 +280,15 @@ def premium():
     )
     data = resp.json()
 
-    # 🔎 TEMP DEBUG: show JSON directly in the browser
-    import json
+    # 🪵 DEBUG: show JSON straight in browser so you see what Patreon gives you
     return f"<pre>{json.dumps(data, indent=2)}</pre>"
 
-    included = data.get("included", []) or []
 
-    for obj in included:
-        if obj.get("type") == "member":
-            status = obj.get("attributes", {}).get("patron_status")
-            if status == "active_patron":
-                return render_template("osce.html")
-
-    return "🔒 Access denied – you must be an active patron."
-
+@app.route("/logout")
+def logout():
+    """Clear Patreon token to force fresh login"""
+    session.pop("patreon_token", None)
+    return "✅ Logged out. Now visit /osce again to trigger a new Patreon login."
 @app.route("/callback")
 def callback():
     """Patreon redirects here after login"""
