@@ -284,11 +284,12 @@ def premium():
     return f"<pre>{json.dumps(data, indent=2)}</pre>"
 
 
-@app.route("/logout")
-def logout():
+@app.route("/clear-session")
+def clear_session():
     """Clear Patreon token to force fresh login"""
     session.pop("patreon_token", None)
-    return "✅ Logged out. Now visit /osce again to trigger a new Patreon login."
+    return "✅ Session cleared. Now visit /osce again to trigger a new Patreon login."
+
 @app.route("/callback")
 def callback():
     """Patreon redirects here after login"""
